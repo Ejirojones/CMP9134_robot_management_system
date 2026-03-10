@@ -1,0 +1,58 @@
+import requests
+from typing import Any, Dict
+
+
+class RobotApiClient:
+    """
+    Singleton Facade for communicating with the Virtual Robot API.
+
+    This class centralises all robot-related HTTP requests so that the rest
+    of the application does not need to deal with raw request handling,
+    JSON parsing, or low-level error management.
+    """
+
+    _instance = None
+
+    def __new__(cls, base_url: str = "http://localhost:5000") -> "RobotApiClient":
+        if cls._instance is None:
+            cls._instance = super(RobotApiClient, cls).__new__(cls)
+            cls._instance.base_url = base_url.rstrip("/")
+        return cls._instance
+
+    def get_status(self) -> Dict[str, Any]:
+        """
+        Retrieve the current robot status from the Virtual Robot API.
+        """
+        try:
+            response = requests.get(f"{self.base_url}/api/status", timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as exc:
+            raise RuntimeError(f"Failed to retrieve robot status: {exc}") from exc
+
+    def move(self, x: int, y: int) -> Dict[str, Any]:
+        """
+        Send a move command to the Virtual Robot API.
+        """
+        if not (0 <= x <= 20 and 0 <= y <= 20):
+            raise ValueError("Coordinates must be between 0 and 20.")
+
+        payload = {"x": x, "y": y}
+
+        try:
+            response = requests.post(f"{self.base_url}/api/move", json=payload, timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as exc:
+            raise RuntimeError(f"Failed to send move command: {exc}") from exc
+
+    def reset(self) -> Dict[str, Any]:
+        """
+        Send a reset command to the Virtual Robot API.
+        """
+        try:
+            response = requests.post(f"{self.base_url}/api/reset", timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as exc:
+            raise RuntimeError(f"Failed to reset robot: {exc}") from exc
