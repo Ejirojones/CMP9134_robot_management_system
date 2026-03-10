@@ -4,7 +4,7 @@
 
 This audit reviews the main third-party libraries and tools reused in the Robot Management System in order to identify their license types and assess whether they impose any legal restrictions on the project.
 
-License information was verified against the official repositories or project documentation of each component.
+License information was verified against the official repositories/project documentation of each component.
 
 ## License Audit Table
 
